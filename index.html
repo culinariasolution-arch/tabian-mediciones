@@ -277,6 +277,7 @@
   <div class="fila"><label style="margin-bottom:6px">FIRMA</label><button id="pcBorrar">Borrar firma</button></div>
   <div class="firma"><canvas id="pcLienzo"></canvas><span id="pcGuia">Firme aquí con el dedo</span></div>
   <button class="btn" id="pcOk" disabled>FIRMAR Y GENERAR PDF</button>
+  <p id="pcErr" style="color:#FF4200;font-size:14px;font-weight:600;margin-top:10px"></p>
 </main></div>
 <div id="login"><img src="" id="loginLogo" alt="Tabian"><h1>Mediciones</h1><p>Entra con tu cuenta de Google<br>de <b>tabian.es</b></p><div id="gBtn"></div><div class="err" id="loginErr"></div></div>
 <div class="aviso" id="aviso"></div>
@@ -821,7 +822,7 @@ function pdfParte(firma){
   pie(); return doc;
 }
 $('pcOk').onclick=async()=>{
-  const b=$('pcOk'); b.disabled=true; b.textContent='GENERANDO…';
+  const b=$('pcOk'); b.disabled=true; b.textContent='GENERANDO…'; $('pcErr').textContent='';
   try{
     await leerPartes();
     const doc=pdfParte(pPad.img()); pPdf=doc.output('blob');
@@ -833,7 +834,7 @@ $('pcOk').onclick=async()=>{
     await leerPartes(); pintarObrasPartes(obra); pintarHistorial();
     try{ await guardarPdfDrive(pArch,doc.output('datauristring').split(',')[1],DRIVE_CARPETA); $('pOkDrive').textContent='Copia guardada en Drive · 02 OBRAS'+(CARPETAS[ANIO]?' / '+ANIO:''); }
     catch(e){ $('pOkDrive').textContent='No se pudo guardar en Drive. Descárgalo y guárdalo a mano.'; }
-  }catch(e){ aviso('Error: '+(e&&e.message||e)); console.error(e); }
+  }catch(e){ const m=String(e&&e.message||e); $('pcErr').textContent='No se ha podido guardar el parte: '+m+(/no permitido/i.test(m)?' → Falta actualizar el Apps Script (nueva versión).':''); console.error(e); }
   b.disabled=false; b.textContent='FIRMAR Y GENERAR PDF';
 };
 $('pDesc').onclick=async()=>{ try{ await compartir(pPdf,pArch); }catch(e){ aviso('No se pudo compartir el PDF'); } };
