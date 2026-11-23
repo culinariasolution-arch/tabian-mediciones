@@ -8,7 +8,7 @@
 
 const CLIENT_ID = '237381041487-4k9g42ec2f9n9bh6p4ndgk4mnoo0v3hp.apps.googleusercontent.com';
 const DOMINIO = 'tabian.es';
-const HOJAS_PERMITIDAS = ['Registro', 'Tipos', 'Ofertas', 'Ajustes'];
+// Se permite cualquier pestaña de esta hoja (el acceso ya lo controla el login @tabian.es)
 const CARPETAS_PERMITIDAS = [
   '1k9M5WWDNolywj923m2QU6OkhhMgbh0TQ', // 02 OBRAS / 2026
   '124TQ25CQDb12VxurtRrNOK2qG_P1k_Sb', // 02 OBRAS / 2027
@@ -56,7 +56,7 @@ function errAuth_(m) { const e = new Error(m); e.auth = true; return e; }
 
 function hojaDeRango_(rango) {
   const m = String(rango).match(/^(\w+)!/);
-  if (!m || HOJAS_PERMITIDAS.indexOf(m[1]) < 0) throw new Error('Rango no permitido: ' + rango);
+  if (!m || !SpreadsheetApp.getActiveSpreadsheet().getSheetByName(m[1])) throw new Error('Rango no permitido: ' + rango);
   return m[1];
 }
 
@@ -89,7 +89,7 @@ function ejecutar_(accion, d, usuario) {
     }
 
     case 'borrar_fila': {
-      if (HOJAS_PERMITIDAS.indexOf(d.hoja) < 0) throw new Error('Hoja no permitida');
+      if (!ss.getSheetByName(d.hoja)) throw new Error('Hoja no permitida');
       const lock = LockService.getScriptLock(); lock.waitLock(15000);
       try {
         const sh = ss.getSheetByName(d.hoja);

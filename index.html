@@ -124,6 +124,17 @@
   #login .err{color:var(--rojo);font-size:14px;margin-top:16px;min-height:20px}
   .sesion{text-align:center;font-size:12px;color:var(--gris);margin-top:34px}
   .sesion button{border:0;background:none;color:var(--gris);text-decoration:underline;font-size:12px}
+  .pt{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:12px;margin-bottom:10px}
+  .pt textarea{min-height:64px;font-size:16px}
+  .pt .fila2{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .pt .fila2 .precio{position:relative;flex:0 0 140px}
+  .pt .fila2 .precio input{padding:11px 34px 11px 11px;font-size:18px;text-align:right;font-weight:700}
+  .pt .fila2 .precio span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gris);font-weight:700}
+  .pt .fila2 button{margin-left:auto;border:0;background:none;color:#c0c0c5;font-size:22px}
+  .ph{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:14px}
+  .ph small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
+  .ph b{font-size:17px;white-space:nowrap}
+  input[type=date]{-webkit-appearance:none;appearance:none;min-height:54px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -133,7 +144,7 @@
   <span>MEDICIONES</span>
 </header>
 <main>
-  <div class="secTabs"><button class="on" data-s="secMed">MEDICIÓN</button><button data-s="secOf">OFERTA</button></div>
+  <div class="secTabs"><button class="on" data-s="secMed">MEDICIÓN</button><button data-s="secOf">OFERTA</button><button data-s="secPar">PARTES</button></div>
   <div class="sec ver" id="secMed">
   <label for="obra">OBRA</label>
   <select id="selObra"><option value="">Cargando obras…</option></select>
@@ -185,6 +196,21 @@
     <button class="btn" id="oPdf">GENERAR PDF PARA ENVIAR</button>
     <button class="btn2" id="oFirmar">FIRMA DE ACEPTACIÓN DEL CLIENTE</button>
     <div class="ok" id="oOk"><b id="oOkTit">Oferta generada</b><p id="oOkDrive"></p><button class="btn" id="oDesc">COMPARTIR / DESCARGAR PDF</button><button class="link" id="oNueva" style="margin-top:8px">Empezar una oferta nueva</button></div>
+  </div>
+  <div class="sec" id="secPar">
+    <label for="pObra">OBRA</label>
+    <select id="pObra"></select>
+    <input id="pObraNueva" placeholder="Nombre de la obra nueva" autocomplete="off" style="display:none;margin-top:8px">
+    <label for="pFecha">FECHA DEL TRABAJO</label>
+    <input id="pFecha" type="date">
+    <label>TRABAJOS REALIZADOS</label>
+    <div id="pLineas"></div>
+    <button class="btn2" id="pAdd" style="margin-top:4px">+ AÑADIR TRABAJO</button>
+    <div class="total"><small>TOTAL HORAS</small><b id="pTotal">0 h</b></div>
+    <button class="btn" id="pFirmar">FIRMA DEL ENCARGADO</button>
+    <div class="ok" id="pOk"><b>Parte firmado</b><p id="pOkDrive"></p><button class="btn" id="pDesc">COMPARTIR / DESCARGAR PDF</button><button class="link" id="pNuevo" style="margin-top:8px">Hacer otro parte</button></div>
+    <h2>PARTES DE ESTA OBRA</h2>
+    <div id="pHist"><div class="vacio">Elige una obra para ver sus partes</div></div>
   </div>
   <div class="sesion"><span id="sesEmail"></span> · <button id="sesSalir">Cerrar sesión</button></div>
 </main>
@@ -240,6 +266,17 @@
   <div class="fila"><label style="margin-bottom:6px">FIRMA</label><button id="ofBorrar">Borrar firma</button></div>
   <div class="firma"><canvas id="ofLienzo"></canvas><span id="ofGuia">Firme aquí con el dedo</span></div>
   <button class="btn" id="ofOk" disabled>ACEPTAR Y GENERAR PDF</button>
+</main></div>
+<div class="capa" id="capaPar"><main>
+  <div class="cab"><button id="pVolver">‹ Volver</button><span style="font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--gris)">PARTE DE TRABAJO</span></div>
+  <div class="doc"><h3 id="pcTit"></h3><div class="sub" id="pcSub"></div>
+    <table><thead><tr><th>TRABAJO</th><th class="n">HORAS</th></tr></thead><tbody id="pcBody"></tbody><tfoot id="pcFoot"></tfoot></table></div>
+  <label for="pcNombre">NOMBRE DEL ENCARGADO</label><input id="pcNombre" placeholder="Nombre y apellidos" autocomplete="off">
+  <label for="pcCargo">EMPRESA / CARGO</label><input id="pcCargo" placeholder="Ej. Encargado · Constructora" autocomplete="off">
+  <p class="conf" id="pcTexto"></p>
+  <div class="fila"><label style="margin-bottom:6px">FIRMA</label><button id="pcBorrar">Borrar firma</button></div>
+  <div class="firma"><canvas id="pcLienzo"></canvas><span id="pcGuia">Firme aquí con el dedo</span></div>
+  <button class="btn" id="pcOk" disabled>FIRMAR Y GENERAR PDF</button>
 </main></div>
 <div id="login"><img src="" id="loginLogo" alt="Tabian"><h1>Mediciones</h1><p>Entra con tu cuenta de Google<br>de <b>tabian.es</b></p><div id="gBtn"></div><div class="err" id="loginErr"></div></div>
 <div class="aviso" id="aviso"></div>
@@ -517,6 +554,7 @@ document.querySelectorAll('.secTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.secTabs button').forEach(x=>x.classList.toggle('on',x===b));
   document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('ver',s.id===b.dataset.s));
   if(b.dataset.s==='secOf') abrirOferta();
+  if(b.dataset.s==='secPar') abrirPartes();
 });
 function pintarChipsOferta(){
   const c=$('oChips'); if(!c) return; c.innerHTML='';
@@ -673,6 +711,133 @@ $('hqPct').querySelectorAll('button').forEach(b=>b.onclick=()=>{hqP=+b.dataset.p
 ['hqAncho','hqAlto','hqN'].forEach(id=>$(id).addEventListener('input',chkHueco));
 $('hqOtro').addEventListener('input',()=>{ if($('hqOtro').value){hqP=null;$('hqPct').querySelectorAll('button').forEach(x=>x.classList.remove('on'));} chkHueco(); });
 $('hqOk').onclick=()=>{ huecosAct.push({a:num($('hqAncho').value),h:num($('hqAlto').value),n:parseInt($('hqN').value)||1,p:pctAct()}); $('capaHueco').classList.remove('ver'); pintarHuecos(); comprobar(); };
+
+// ======= PARTES DE HORAS =======
+let pLineas=[], pPdf=null, pArch='', pFilas=[], pNum='';
+const horasTxt=h=>Number(h||0).toLocaleString('es-ES',{maximumFractionDigits:2})+' h';
+function fechaISOhoy(){const f=new Date();return f.getFullYear()+'-'+pad2(f.getMonth()+1)+'-'+pad2(f.getDate());}
+function fechaES(iso){const [y,m,d]=String(iso).split('-');return d+'/'+m+'/'+y;}
+function pObraAct(){ const v=$('pObra').value; return v==='__nueva'?$('pObraNueva').value.trim():v; }
+function pintarObrasPartes(sel){
+  const todas=[...new Set([...obrasLista,...pFilas.map(r=>String(r[2]||'')).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'es'));
+  const s=$('pObra'); s.innerHTML='<option value="">Elige una obra…</option>'+todas.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')+'<option value="__nueva">+ Nueva obra</option>';
+  if(sel&&todas.includes(sel)) s.value=sel; else if(sel===undefined&&$('obra').value&&todas.includes($('obra').value)) s.value=$('obra').value;
+  $('pObraNueva').style.display=s.value==='__nueva'?'block':'none';
+}
+async function leerPartes(){ pFilas=(await tool('get_values',{range:'Partes!A2:J'})).values||[]; const an=String(new Date().getFullYear());
+  pNum=an+'-'+String(pFilas.filter(r=>String(r[0]||'').startsWith(an)).length+1).padStart(3,'0'); }
+function pintarHistorial(){
+  const o=pObraAct(), ls=pFilas.filter(r=>String(r[2])===o&&r[0]);
+  if(!o){$('pHist').innerHTML='<div class="vacio">Elige una obra para ver sus partes</div>';return;}
+  if(!ls.length){$('pHist').innerHTML='<div class="vacio">Todavía no hay partes en esta obra</div>';return;}
+  const tot=ls.reduce((s,r)=>s+(num(r[4])||0),0);
+  $('pHist').innerHTML=ls.slice().reverse().map(r=>`<div class="ph"><div><b style="font-size:14px">${esc(r[1]||'')}</b> · Nº ${esc(r[0])}<small>${esc(String(r[3]||'').slice(0,80))}</small><small>Firmado por ${esc(r[5]||'—')}</small></div><b>${horasTxt(num(r[4])||0)}</b></div>`).join('')
+    +`<div class="total" style="margin-top:6px"><small>TOTAL HORAS OBRA</small><b>${horasTxt(tot)}</b></div>`;
+}
+function pintarLineasP(){
+  const box=$('pLineas'); box.innerHTML='';
+  pLineas.forEach((l,i)=>{ const d=document.createElement('div'); d.className='pt';
+    d.innerHTML=`<textarea placeholder="Descripción del trabajo (ej. ayuda a fontanería, apertura de rozas…)"></textarea><div class="fila2"><div class="precio"><input inputmode="decimal" placeholder="0"><span>h</span></div>${pLineas.length>1?'<button aria-label="Quitar">✕</button>':''}</div>`;
+    const ta=d.querySelector('textarea'), hi=d.querySelector('input'); ta.value=l.desc; hi.value=l.horas===''?'':String(l.horas).replace('.',',');
+    ta.oninput=()=>l.desc=ta.value; hi.oninput=()=>{l.horas=hi.value===''?'':num(hi.value);totalP();};
+    const x=d.querySelector('.fila2 button'); if(x) x.onclick=()=>{pLineas.splice(i,1);pintarLineasP();};
+    box.appendChild(d); });
+  totalP();
+}
+function totalP(){ $('pTotal').textContent=horasTxt(pLineas.reduce((s,l)=>s+(l.horas>0?l.horas:0),0)); }
+async function abrirPartes(){
+  if(!pLineas.length){ pLineas=[{desc:'',horas:''}]; }
+  if(!$('pFecha').value) $('pFecha').value=fechaISOhoy();
+  pintarLineasP(); pintarObrasPartes(); pintarHistorial();
+  try{ await leerPartes(); pintarObrasPartes($('pObra').value||undefined); pintarHistorial(); }catch(e){ aviso('Error: '+(e&&e.message||e)); }
+}
+$('pObra').onchange=()=>{ $('pObraNueva').style.display=$('pObra').value==='__nueva'?'block':'none'; if($('pObra').value==='__nueva') $('pObraNueva').focus(); pintarHistorial(); };
+$('pObraNueva').oninput=pintarHistorial;
+$('pAdd').onclick=()=>{ pLineas.push({desc:'',horas:''}); pintarLineasP(); const t=$('pLineas').querySelectorAll('textarea'); t[t.length-1].focus(); };
+function validarParte(){
+  if(!pObraAct()){aviso('Elige la obra');return false;}
+  if(!$('pFecha').value){aviso('Pon la fecha');return false;}
+  const ok=pLineas.filter(l=>l.desc.trim()||l.horas>0);
+  if(!ok.length){aviso('Añade al menos un trabajo');return false;}
+  if(ok.some(l=>!l.desc.trim())){aviso('Falta la descripción de algún trabajo');return false;}
+  if(ok.some(l=>!(l.horas>0))){aviso('Faltan las horas de algún trabajo');return false;}
+  return true;
+}
+const pPad=(function(){ const cv=$('pcLienzo'), cx=cv.getContext('2d'); let n=0,dib=false;
+  const chk=()=>{$('pcOk').disabled=!($('pcNombre').value.trim()&&n>0);};
+  const reset=()=>{const r=cv.getBoundingClientRect(),k=window.devicePixelRatio||1;cv.width=r.width*k;cv.height=r.height*k;cx.setTransform(k,0,0,k,0,0);cx.lineWidth=2.4;cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle='#111';n=0;$('pcGuia').style.display='block';chk();};
+  const pos=e=>{const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  cv.addEventListener('pointerdown',e=>{dib=true;cv.setPointerCapture(e.pointerId);const [x,y]=pos(e);cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+.1,y+.1);cx.stroke();});
+  cv.addEventListener('pointermove',e=>{if(!dib)return;const [x,y]=pos(e);cx.lineTo(x,y);cx.stroke();});
+  const fin=()=>{if(dib){dib=false;n++;$('pcGuia').style.display='none';chk();}}; cv.addEventListener('pointerup',fin); cv.addEventListener('pointercancel',fin);
+  $('pcNombre').addEventListener('input',chk); $('pcBorrar').onclick=reset;
+  const img=()=>{const w=cv.width,h=cv.height,d=cx.getImageData(0,0,w,h).data;let x0=w,y0=h,x1=0,y1=0;
+    for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){if(d[(y*w+x)*4+3]>0){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+    const m=10,c=document.createElement('canvas');c.width=Math.max(1,x1-x0+2*m);c.height=Math.max(1,y1-y0+2*m);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(cv,x0-m,y0-m,c.width,c.height,0,0,c.width,c.height);return {url:c.toDataURL('image/png'),w:c.width,h:c.height};};
+  return {reset,img};
+})();
+function textoParte(){ const tot=pLineas.filter(l=>l.horas>0).reduce((s,l)=>s+l.horas,0);
+  return `El responsable de obra abajo firmante da su conformidad a los trabajos realizados por TABIAN en la obra "${pObraAct()}" el día ${fechaES($('pFecha').value)}, con un total de ${horasTxt(tot)} de trabajo.`; }
+$('pFirmar').onclick=async()=>{
+  if(!validarParte()) return;
+  try{ await leerPartes(); }catch(e){}
+  const ls=pLineas.filter(l=>l.desc.trim()), tot=ls.reduce((s,l)=>s+l.horas,0);
+  $('pcTit').textContent=pObraAct(); $('pcSub').textContent='Parte nº '+pNum+' · '+fechaES($('pFecha').value);
+  $('pcBody').innerHTML=ls.map(l=>`<tr><td>${esc(l.desc)}</td><td class="n"><b>${horasTxt(l.horas)}</b></td></tr>`).join('');
+  $('pcFoot').innerHTML=`<tr><td>TOTAL</td><td class="n" style="color:#FF4200">${horasTxt(tot)}</td></tr>`;
+  $('pcTexto').textContent=textoParte();
+  $('capaPar').classList.add('ver'); $('capaPar').scrollTop=0; setTimeout(pPad.reset,50);
+};
+$('pVolver').onclick=()=>$('capaPar').classList.remove('ver');
+function pdfParte(firma){
+  const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'}), W=210, M=16;
+  const ls=pLineas.filter(l=>l.desc.trim()), tot=ls.reduce((s,l)=>s+l.horas,0), a=new Date();
+  const pie=()=>{doc.setFontSize(8);doc.setTextColor(140);doc.text('TABIAN · Tabiquería y obra · info@tabian.es · 638 666 270',M,288);doc.text('Pág. '+doc.getNumberOfPages(),W-M,288,{align:'right'});};
+  doc.addImage(document.querySelector('header img').src,'PNG',M,10,38,22);
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(40,40,43);doc.text('PARTE DE TRABAJO',W-M,18,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120);doc.text('Nº '+pNum,W-M,24,{align:'right'});doc.text('Trabajos por horas',W-M,29,{align:'right'});
+  doc.setDrawColor(255,66,0);doc.setLineWidth(1);doc.line(M,36,W-M,36);
+  doc.setFontSize(8);doc.setTextColor(140);doc.setFont('helvetica','bold');doc.text('OBRA',M,44);doc.text('FECHA DEL TRABAJO',W-M,44,{align:'right'});
+  doc.setFontSize(11);doc.setTextColor(40,40,43);doc.text(doc.splitTextToSize(pObraAct(),W/2),M,50);doc.text(fechaES($('pFecha').value),W-M,50,{align:'right'});
+  let y=64;
+  const cab=()=>{doc.setFillColor(40,40,43);doc.rect(M,y-5,W-2*M,8,'F');doc.setFontSize(8);doc.setTextColor(255);doc.setFont('helvetica','bold');doc.text('TRABAJO REALIZADO',M+2,y);doc.text('HORAS',W-M-2,y,{align:'right'});y+=9;};
+  cab();
+  ls.forEach(l=>{ const lines=doc.splitTextToSize(l.desc,W-2*M-40); if(y+lines.length*5>262){pie();doc.addPage();y=20;cab();}
+    doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(40,40,43);doc.text(lines,M+2,y);
+    doc.setFont('helvetica','bold');doc.text(horasTxt(l.horas),W-M-2,y,{align:'right'});
+    y+=lines.length*5; doc.setDrawColor(228);doc.setLineWidth(.2);doc.line(M,y-1,W-M,y-1);y+=7; });
+  doc.setDrawColor(255,66,0);doc.setLineWidth(.8);doc.line(W-M-70,y-3,W-M,y-3);y+=3;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(40,40,43);doc.text('TOTAL',W-M-70,y);doc.setTextColor(255,66,0);doc.text(horasTxt(tot),W-M-2,y,{align:'right'});
+  y+=14; if(y>225){pie();doc.addPage();y=20;}
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(40,40,43);
+  const tx=doc.splitTextToSize(textoParte(),W-2*M); doc.text(tx,M,y); y+=tx.length*5+8;
+  doc.setFontSize(8);doc.setTextColor(140);doc.setFont('helvetica','bold');doc.text('FIRMA DEL ENCARGADO / RESPONSABLE DE OBRA',M,y);y+=3;
+  const fh=24,fw=Math.min(70,fh*firma.w/firma.h); doc.addImage(firma.url,'PNG',M,y,fw,fh); y+=fh+2;
+  doc.setDrawColor(180);doc.setLineWidth(.3);doc.line(M,y,M+80,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(40,40,43);doc.text($('pcNombre').value.trim(),M,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(110);
+  if($('pcCargo').value.trim()){doc.text($('pcCargo').value.trim(),M,y);y+=5;}
+  doc.text('Firmado el '+a.toLocaleDateString('es-ES')+' a las '+a.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),M,y);
+  pie(); return doc;
+}
+$('pcOk').onclick=async()=>{
+  const b=$('pcOk'); b.disabled=true; b.textContent='GENERANDO…';
+  try{
+    await leerPartes();
+    const doc=pdfParte(pPad.img()); pPdf=doc.output('blob');
+    const obra=pObraAct(), ls=pLineas.filter(l=>l.desc.trim()), tot=ls.reduce((s,l)=>s+l.horas,0), a=new Date();
+    pArch='Parte '+pNum+' '+obra.replace(/[\\/:*?"<>|]/g,'')+' '+$('pFecha').value+'.pdf';
+    const fila=pFilas.length+2;
+    await tool('update_values',{range:'Partes!A'+fila+':J'+fila,values:[[pNum,fechaES($('pFecha').value),obra,ls.map(l=>l.desc.trim()+' ('+horasTxt(l.horas)+')').join(' | '),tot,$('pcNombre').value.trim(),$('pcCargo').value.trim(),a.toLocaleString('es-ES'),pArch,JSON.stringify(ls)]]});
+    $('capaPar').classList.remove('ver'); $('pFirmar').style.display='none'; $('pAdd').style.display='none'; $('pOk').style.display='block'; $('pOkDrive').textContent='Guardando copia en Google Drive…';
+    await leerPartes(); pintarObrasPartes(obra); pintarHistorial();
+    try{ await guardarPdfDrive(pArch,doc.output('datauristring').split(',')[1],DRIVE_CARPETA); $('pOkDrive').textContent='Copia guardada en Drive · 02 OBRAS'+(CARPETAS[ANIO]?' / '+ANIO:''); }
+    catch(e){ $('pOkDrive').textContent='No se pudo guardar en Drive. Descárgalo y guárdalo a mano.'; }
+  }catch(e){ aviso('Error: '+(e&&e.message||e)); console.error(e); }
+  b.disabled=false; b.textContent='FIRMAR Y GENERAR PDF';
+};
+$('pDesc').onclick=async()=>{ try{ await compartir(pPdf,pArch); }catch(e){ aviso('No se pudo compartir el PDF'); } };
+$('pNuevo').onclick=()=>{ pLineas=[{desc:'',horas:''}]; $('pFecha').value=fechaISOhoy(); $('pcNombre').value=''; $('pcCargo').value=''; $('pOk').style.display='none'; $('pFirmar').style.display='block'; $('pAdd').style.display='block'; abrirPartes(); window.scrollTo(0,0); };
 </script>
 </body>
 </html>
