@@ -78,7 +78,7 @@
 
   .chip.mas{border-style:dashed;color:var(--gris);background:transparent}
   .secTabs{display:flex;gap:8px;margin-bottom:6px}
-  .secTabs button{flex:1;padding:12px;border-radius:12px;border:2px solid var(--linea);background:#fff;font-weight:800;font-size:15px;letter-spacing:.04em;color:var(--negro)}
+  .secTabs button{flex:1;padding:12px 2px;border-radius:12px;border:2px solid var(--linea);background:#fff;font-weight:800;font-size:13px;letter-spacing:.02em;color:var(--negro)}
   .secTabs button.on{background:var(--negro);border-color:var(--negro);color:#fff}
   .sec{display:none}.sec.ver{display:block}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:flex-end;justify-content:center}
@@ -135,6 +135,20 @@
   .ph small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
   .ph b{font-size:17px;white-space:nowrap}
   input[type=date]{-webkit-appearance:none;appearance:none;min-height:54px}
+  .ob{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px;margin-bottom:10px;color:var(--negro)}
+  .ob b{font-size:17px}.ob small{display:block;color:var(--gris);font-size:13px;margin-top:3px}
+  .chipE{padding:5px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.05em;white-space:nowrap}
+  .eCurso{background:#e3f5ea;color:#1f9d55}.eTerm{background:#ececee;color:#8a8a8f}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .kpi{background:var(--negro);color:#fff;border-radius:14px;padding:12px 14px}
+  .kpi small{display:block;font-size:10px;letter-spacing:.1em;opacity:.7;font-weight:700}
+  .kpi b{font-size:24px;color:var(--rojo)}
+  .doclink{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:14px;text-decoration:none;color:var(--negro)}
+  .doclink small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
+  .doclink span.v{color:var(--rojo);font-weight:700;font-size:13px;white-space:nowrap;margin-left:10px}
+  .acc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+  .acc button{padding:14px 4px;border-radius:12px;border:2px solid var(--negro);background:#fff;font-weight:800;font-size:12px;letter-spacing:.03em;color:var(--negro)}
+  .acc button:first-child{background:var(--rojo);border-color:var(--rojo);color:#fff}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -144,7 +158,7 @@
   <span>MEDICIONES</span>
 </header>
 <main>
-  <div class="secTabs"><button class="on" data-s="secMed">MEDICIÓN</button><button data-s="secOf">OFERTA</button><button data-s="secPar">PARTES</button></div>
+  <div class="secTabs"><button class="on" data-s="secMed">MEDICIÓN</button><button data-s="secOf">OFERTA</button><button data-s="secPar">PARTES</button><button data-s="secObr">OBRAS</button></div>
   <div class="sec ver" id="secMed">
   <label for="obra">OBRA</label>
   <select id="selObra"><option value="">Cargando obras…</option></select>
@@ -182,7 +196,7 @@
     <label for="oCliente">CLIENTE</label>
     <input id="oCliente" placeholder="Constructora o cliente" autocomplete="off">
     <label for="oObra">OBRA</label>
-    <input id="oObra" placeholder="Obra o descripción del trabajo" autocomplete="off">
+    <input id="oObra" list="oObrasList" placeholder="Obra o descripción del trabajo" autocomplete="off"><datalist id="oObrasList"></datalist>
     <label>AÑADIR PARTIDA</label>
     <div class="chips" id="oChips"></div>
     <label style="margin-top:20px">PARTIDAS</label>
@@ -211,6 +225,25 @@
     <div class="ok" id="pOk"><b>Parte firmado</b><p id="pOkDrive"></p><button class="btn" id="pDesc">COMPARTIR / DESCARGAR PDF</button><button class="link" id="pNuevo" style="margin-top:8px">Hacer otro parte</button></div>
     <h2>PARTES DE ESTA OBRA</h2>
     <div id="pHist"><div class="vacio">Elige una obra para ver sus partes</div></div>
+  </div>
+  <div class="sec" id="secObr">
+    <div id="obLista"><div class="vacio">Cargando obras…</div></div>
+    <div id="obFicha" style="display:none">
+      <button class="link" id="obVolver" style="font-size:15px">‹ Todas las obras</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px"><h1 id="obNombre" style="font-size:22px;margin:0"></h1><span id="obEstadoChip" class="chipE"></span></div>
+      <div class="kpis"><div class="kpi"><small>m² MEDIDOS</small><b id="obM2">0</b></div><div class="kpi"><small>HORAS EN PARTES</small><b id="obH">0</b></div></div>
+      <div class="acc"><button id="obMedir">MEDIR</button><button id="obParte">NUEVO PARTE</button><button id="obOferta">NUEVA OFERTA</button></div>
+      <h2>DATOS DE LA OBRA</h2>
+      <label for="obCliente">CONSTRUCTORA / CLIENTE</label><input id="obCliente" autocomplete="off" placeholder="Ej. Rehabilita e Innova">
+      <div class="dos"><div><label for="obEnc">ENCARGADO</label><input id="obEnc" autocomplete="off" placeholder="Nombre"></div><div><label for="obCargo">CARGO</label><input id="obCargo" autocomplete="off" placeholder="Ej. Jefe de obra"></div></div>
+      <label>ESTADO</label><div class="seg" id="obEstado"><button data-e="En curso">En curso</button><button data-e="Terminada">Terminada</button></div>
+      <label for="obNotas">NOTAS</label><textarea id="obNotas" style="min-height:70px" placeholder="Accesos, contactos, lo que quieras recordar…"></textarea>
+      <button class="btn2" id="obGuardar">GUARDAR DATOS</button>
+      <h2>MEDICIÓN POR TIPO</h2><div id="obTipos"></div>
+      <h2>ACTAS FIRMADAS</h2><div id="obActas"></div>
+      <h2>OFERTAS</h2><div id="obOfertas"></div>
+      <h2>PARTES DE HORAS</h2><div id="obPartes"></div>
+    </div>
   </div>
   <div class="sesion"><span id="sesEmail"></span> · <button id="sesSalir">Cerrar sesión</button></div>
 </main>
@@ -464,6 +497,7 @@ $('btnFin').onclick=()=>{
   $('dObra').textContent=$('obra').value.trim(); $('dFecha').textContent='Medición del '+hoy()+' · '+ls.length+' líneas';
   $('dBody').innerHTML=ls.map(l=>`<tr><td><b>${esc(l.tipo)}</b><br><span style="color:#8a8a8f">${esc(l.zona||'—')}</span></td><td class="n">${fmt(l.largo)} × ${fmt(l.ancho)}</td><td class="n"><b>${fmt(l.desc>0?r2(l.largo*l.ancho):l.m2)}</b></td></tr>`+(l.huecos||[]).map(h=>`<tr><td class="hh" colspan="2">− ${esc(txtHueco(h))}</td><td class="n hh">−${fmt(r2(h.a*h.h*h.n*h.p/100))}</td></tr>`).join('')).join('');
   $('dFoot').innerHTML=Object.keys(p).map(t=>`<tr><td colspan="2" style="font-weight:600;border:0">${esc(t)}</td><td class="n" style="border:0">${fmt(p[t])}</td></tr>`).join('')+`<tr><td colspan="2">TOTAL</td><td class="n" style="color:#FF4200">${fmt(tot)} m²</td></tr>`;
+  { const od=datosObra($('obra').value.trim()); if(od&&!$('fNombre').value){ $('fNombre').value=od.enc||''; $('fEmpresa').value=[od.cargo,od.cliente].filter(Boolean).join(' · '); } }
   $('fTexto').textContent=textoConf(); $('okBox').style.display='none'; $('btnPdf').style.display='block';
   $('capa').classList.add('ver'); $('capa').scrollTop=0; setTimeout(prepLienzo,50); comprobarFirma();
 };
@@ -539,7 +573,12 @@ $('btnPdf').onclick=async()=>{
     pdfNombre='Medición '+$('obra').value.trim().replace(/[\\/:*?"<>|]/g,'')+' '+fs+'.pdf';
     b.style.display='none'; $('okBox').style.display='block'; $('okDrive').textContent='Guardando copia en Google Drive…';
     const b64=doc.output('datauristring').split(',')[1];
-    (async()=>{ try{ await guardarPdfDrive(pdfNombre,b64,DRIVE_CARPETA);
+    const obraA=$('obra').value.trim(), totA=lineasAct.reduce((s,l)=>s+l.m2,0), nomA=$('fNombre').value.trim(), carA=$('fEmpresa').value.trim();
+    (async()=>{ let filaA=0; try{ const v=(await tool('get_values',{range:'Actas!A2:A'})).values||[]; filaA=v.length+2;
+        await tool('update_values',{range:'Actas!A'+filaA+':H'+filaA,values:[[hoy(),obraA,r2(totA),lineasAct.length,nomA,carA,new Date().toLocaleString('es-ES'),pdfNombre]]}); }catch(e){ console.error(e); }
+      guardarEncargado(obraA,nomA,carA);
+      try{ const r=await guardarPdfDrive(pdfNombre,b64,DRIVE_CARPETA);
+      if(filaA&&r&&r.url){ try{ await tool('update_values',{range:'Actas!I'+filaA,values:[[r.url]]}); }catch(e){} }
       $('okDrive').textContent='Copia guardada en Drive · 02 OBRAS'+(CARPETAS[ANIO]?' / '+ANIO:''); }catch(e){ $('okDrive').textContent='No se pudo guardar en Drive ('+(e&&(e.code||e.message)||e)+'). Descárgalo y guárdalo a mano.'; } })();
   }catch(e){ b.disabled=false; b.textContent='FIRMAR Y GENERAR PDF'; aviso('Error al crear el PDF'); console.error(e); }
 };
@@ -556,6 +595,7 @@ document.querySelectorAll('.secTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('ver',s.id===b.dataset.s));
   if(b.dataset.s==='secOf') abrirOferta();
   if(b.dataset.s==='secPar') abrirPartes();
+  if(b.dataset.s==='secObr') abrirObras();
 });
 function pintarChipsOferta(){
   const c=$('oChips'); if(!c) return; c.innerHTML='';
@@ -589,6 +629,7 @@ async function guardarPrecioHab(p){
 }
 let ofCargado=false;
 async function abrirOferta(){
+  try{ $('oObrasList').innerHTML=[...new Set([...obrasLista,...Object.keys(obrasData)])].map(o=>`<option value="${esc(o)}">`).join(''); }catch(e){}
   $('oFecha').textContent=hoy(); pintarChipsOferta(); pintarPartidas();
   try{
     if(!ofCargado){ const a=(await tool('get_values',{spreadsheetId:SS,range:'Ajustes!B1:B2'})).values||[]; $('oCond').value=(a[0]&&a[0][0])||''; if(a[1]&&a[1][0])$('oVal').value=a[1][0]; ofCargado=true; }
@@ -679,7 +720,7 @@ async function emitirOferta(firmada, btn){
     $('capaOf').classList.remove('ver'); $('oPdf').style.display='none'; $('oFirmar').style.display='none';
     $('oOk').style.display='block'; $('oOkTit').textContent=firmada?'Oferta aceptada y firmada':'Oferta generada'; $('oOkDrive').textContent='Guardando copia en Google Drive…';
     const b64=doc.output('datauristring').split(',')[1];
-    try{ await guardarPdfDrive(ofNombreArch,b64,COMERCIAL_ID); $('oOkDrive').textContent='Copia guardada en Drive · 01 COMERCIAL'; }
+    try{ const r=await guardarPdfDrive(ofNombreArch,b64,COMERCIAL_ID); if(r&&r.url){ try{ await tool('update_values',{range:'Ofertas!J'+fila,values:[[r.url]]}); }catch(e){} } $('oOkDrive').textContent='Copia guardada en Drive · 01 COMERCIAL'; }
     catch(e){ $('oOkDrive').textContent='No se pudo guardar en Drive. Descárgalo y guárdalo a mano.'; }
   }catch(e){ aviso('Error: '+(e&&e.message||e)); console.error(e); }
   btn.disabled=false; btn.textContent=txt;
@@ -786,6 +827,7 @@ $('pFirmar').onclick=async()=>{
   $('pcTit').textContent=pObraAct(); $('pcSub').textContent='Parte nº '+pNum+' · '+fechaES($('pFecha').value);
   $('pcBody').innerHTML=ls.map(l=>`<tr><td>${esc(l.desc)}</td><td class="n"><b>${horasTxt(l.horas)}</b></td></tr>`).join('');
   $('pcFoot').innerHTML=`<tr><td>TOTAL</td><td class="n" style="color:#FF4200">${horasTxt(tot)}</td></tr>`;
+  { const od=datosObra(pObraAct()); if(od&&!$('pcNombre').value){ $('pcNombre').value=od.enc||''; $('pcCargo').value=[od.cargo,od.cliente].filter(Boolean).join(' · '); } }
   $('pcTexto').textContent=textoParte();
   $('capaPar').classList.add('ver'); $('capaPar').scrollTop=0; setTimeout(pPad.reset,50);
 };
@@ -832,13 +874,79 @@ $('pcOk').onclick=async()=>{
     await tool('update_values',{range:'Partes!A'+fila+':J'+fila,values:[[pNum,fechaES($('pFecha').value),obra,ls.map(l=>l.desc.trim()+' ('+horasTxt(l.horas)+')').join(' | '),tot,$('pcNombre').value.trim(),$('pcCargo').value.trim(),a.toLocaleString('es-ES'),pArch,JSON.stringify(ls)]]});
     $('capaPar').classList.remove('ver'); $('pFirmar').style.display='none'; $('pAdd').style.display='none'; $('pOk').style.display='block'; $('pOkDrive').textContent='Guardando copia en Google Drive…';
     await leerPartes(); pintarObrasPartes(obra); pintarHistorial();
-    try{ await guardarPdfDrive(pArch,doc.output('datauristring').split(',')[1],DRIVE_CARPETA); $('pOkDrive').textContent='Copia guardada en Drive · 02 OBRAS'+(CARPETAS[ANIO]?' / '+ANIO:''); }
+    guardarEncargado(obra,$('pcNombre').value.trim(),$('pcCargo').value.trim());
+    try{ const r=await guardarPdfDrive(pArch,doc.output('datauristring').split(',')[1],DRIVE_CARPETA); if(r&&r.url){ try{ await tool('update_values',{range:'Partes!K'+fila,values:[[r.url]]}); }catch(e){} } $('pOkDrive').textContent='Copia guardada en Drive · 02 OBRAS'+(CARPETAS[ANIO]?' / '+ANIO:''); }
     catch(e){ $('pOkDrive').textContent='No se pudo guardar en Drive. Descárgalo y guárdalo a mano.'; }
   }catch(e){ const m=String(e&&e.message||e); $('pcErr').textContent='No se ha podido guardar el parte: '+m+(/no permitido/i.test(m)?' → Falta actualizar el Apps Script (nueva versión).':''); console.error(e); }
   b.disabled=false; b.textContent='FIRMAR Y GENERAR PDF';
 };
 $('pDesc').onclick=async()=>{ try{ await compartir(pPdf,pArch); }catch(e){ aviso('No se pudo compartir el PDF'); } };
 $('pNuevo').onclick=()=>{ pLineas=[{desc:'',horas:''}]; $('pFecha').value=fechaISOhoy(); $('pcNombre').value=''; $('pcCargo').value=''; $('pOk').style.display='none'; $('pFirmar').style.display='block'; $('pAdd').style.display='block'; abrirPartes(); window.scrollTo(0,0); };
+
+// ======= OBRAS (FICHA DE OBRA) =======
+let obrasData={}, obFilas=[], obOfertas=[], obActas=[], obActual='';
+const normO=s=>String(s||'').trim().toLowerCase();
+function datosObra(o){ return obrasData[o]||null; }
+async function cargarObrasData(){ obFilas=(await tool('get_values',{range:'Obras!A2:G'})).values||[]; obrasData={};
+  obFilas.forEach(r=>{ if(r[0]) obrasData[r[0]]={cliente:r[1]||'',enc:r[2]||'',cargo:r[3]||'',estado:r[4]||'En curso',notas:r[5]||''}; }); }
+async function guardarObra(obra,d){
+  await cargarObrasData();
+  const i=obFilas.findIndex(r=>String(r[0])===obra), fila=i>=0?i+2:obFilas.length+2;
+  await tool('update_values',{range:'Obras!A'+fila+':G'+fila,values:[[obra,d.cliente||'',d.enc||'',d.cargo||'',d.estado||'En curso',d.notas||'',new Date().toLocaleString('es-ES')]]});
+  obrasData[obra]={...d};
+}
+async function guardarEncargado(obra,nom,cargo){ // guarda el encargado si la obra aún no lo tiene
+  try{ if(!obra||!nom) return; await cargarObrasData(); const od=obrasData[obra];
+    if(od&&od.enc) return; await guardarObra(obra,{...(od||{}),enc:nom,cargo:od&&od.cargo?od.cargo:cargo,estado:(od&&od.estado)||'En curso'}); }catch(e){ console.error(e); }
+}
+async function abrirObras(){
+  $('obFicha').style.display='none'; $('obLista').style.display='block';
+  try{ await Promise.all([leerFilas(),leerPartes(),cargarObrasData(),(async()=>{obOfertas=(await tool('get_values',{range:'Ofertas!A2:J'})).values||[];})(),(async()=>{obActas=(await tool('get_values',{range:'Actas!A2:I'})).values||[];})()]);
+    pintarListaObras(); if(obActual) pintarFicha(obActual);
+  }catch(e){ $('obLista').innerHTML='<div class="vacio">No se pudieron cargar las obras: '+esc(e&&e.message||e)+'</div>'; }
+}
+function m2Obra(o){ return r2(filas.filter(r=>String(r[2])===o&&r[0]).reduce((s,r)=>s+(num(r[7])||0),0)); }
+function horasObra(o){ return pFilas.filter(r=>String(r[2])===o&&r[0]).reduce((s,r)=>s+(num(r[4])||0),0); }
+function todasObras(){ return [...new Set([...filas.map(r=>String(r[2]||'')),...pFilas.map(r=>String(r[2]||'')),...obActas.map(r=>String(r[1]||'')),...Object.keys(obrasData)].filter(Boolean))]; }
+function pintarListaObras(){
+  const os=todasObras().sort((a,b)=>{ const ea=(obrasData[a]||{}).estado==='Terminada', eb=(obrasData[b]||{}).estado==='Terminada'; return ea!==eb?(ea?1:-1):a.localeCompare(b,'es'); });
+  if(!os.length){ $('obLista').innerHTML='<div class="vacio">Todavía no hay obras. Empieza midiendo una en MEDICIÓN.</div>'; return; }
+  $('obLista').innerHTML=''; os.forEach(o=>{ const d=obrasData[o]||{}, term=d.estado==='Terminada';
+    const b=document.createElement('button'); b.className='ob';
+    b.innerHTML=`<div><b></b><small>${fmt(m2Obra(o))} m² · ${horasTxt(horasObra(o))}${d.cliente?' · '+esc(d.cliente):''}</small></div><span class="chipE ${term?'eTerm':'eCurso'}">${term?'TERMINADA':'EN CURSO'}</span>`;
+    b.querySelector('b').textContent=o; b.onclick=()=>pintarFicha(o); $('obLista').appendChild(b); });
+}
+let obEstadoSel='En curso';
+function pintarEstado(){ $('obEstado').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.e===obEstadoSel));
+  const term=obEstadoSel==='Terminada'; $('obEstadoChip').className='chipE '+(term?'eTerm':'eCurso'); $('obEstadoChip').textContent=term?'TERMINADA':'EN CURSO'; }
+$('obEstado').querySelectorAll('button').forEach(b=>b.onclick=()=>{obEstadoSel=b.dataset.e;pintarEstado();});
+function enlace(url,titulo,sub,dcha){ const a=document.createElement(url?'a':'div'); a.className='doclink'; if(url){a.href=url;a.target='_blank';a.rel='noopener';}
+  a.innerHTML=`<div><b></b><small></small></div><span class="v">${dcha||''}${url?' · Ver PDF':''}</span>`; a.querySelector('b').textContent=titulo; a.querySelector('small').textContent=sub; return a; }
+function pintarFicha(o){
+  obActual=o; window.scrollTo(0,0); $('obLista').style.display='none'; $('obFicha').style.display='block';
+  const d=obrasData[o]||{}; $('obNombre').textContent=o;
+  $('obCliente').value=d.cliente||''; $('obEnc').value=d.enc||''; $('obCargo').value=d.cargo||''; $('obNotas').value=d.notas||''; obEstadoSel=d.estado||'En curso'; pintarEstado();
+  $('obM2').textContent=fmt(m2Obra(o))+' m²'; $('obH').textContent=horasTxt(horasObra(o));
+  const pt={}; filas.filter(r=>String(r[2])===o&&r[0]).forEach(r=>pt[r[3]]=(pt[r[3]]||0)+(num(r[7])||0));
+  $('obTipos').innerHTML=Object.keys(pt).length?'<div class="resumen">'+Object.keys(pt).map(k=>`<div>${esc(k)}<b>${fmt(pt[k])} m²</b></div>`).join('')+'</div>':'<div class="vacio">Sin mediciones todavía</div>';
+  const ac=obActas.filter(r=>String(r[1])===o); $('obActas').innerHTML=''; if(!ac.length) $('obActas').innerHTML='<div class="vacio">Sin actas registradas</div>';
+  ac.slice().reverse().forEach(r=>$('obActas').appendChild(enlace(r[8],'Acta del '+(r[0]||''),'Firmada por '+(r[4]||'—')+(r[5]?' · '+r[5]:''),fmt(num(r[2])||0)+' m²')));
+  const of=obOfertas.filter(r=>r[0]&&(normO(r[3])===normO(o)||(!r[3]&&normO(r[2])===normO(d.cliente)&&d.cliente))); $('obOfertas').innerHTML=''; if(!of.length) $('obOfertas').innerHTML='<div class="vacio">Sin ofertas para esta obra</div>';
+  of.slice().reverse().forEach(r=>$('obOfertas').appendChild(enlace(r[9],'Oferta nº '+r[0]+' · '+(r[6]||''),(r[1]||'')+' · '+(r[4]||'').slice(0,70),'')));
+  const pa=pFilas.filter(r=>String(r[2])===o&&r[0]); $('obPartes').innerHTML=''; if(!pa.length) $('obPartes').innerHTML='<div class="vacio">Sin partes de horas</div>';
+  pa.slice().reverse().forEach(r=>$('obPartes').appendChild(enlace(r[10],'Parte nº '+r[0]+' · '+(r[1]||''),(r[3]||'').slice(0,70),horasTxt(num(r[4])||0))));
+}
+$('obVolver').onclick=()=>{ obActual=''; $('obFicha').style.display='none'; $('obLista').style.display='block'; pintarListaObras(); window.scrollTo(0,0); };
+$('obGuardar').onclick=async()=>{ const b=$('obGuardar'); b.disabled=true; b.textContent='GUARDANDO…';
+  try{ await guardarObra(obActual,{cliente:$('obCliente').value.trim(),enc:$('obEnc').value.trim(),cargo:$('obCargo').value.trim(),estado:obEstadoSel,notas:$('obNotas').value.trim()}); aviso('Datos de la obra guardados'); pintarFicha(obActual); }
+  catch(e){ aviso('Error: '+(e&&e.message||e)); }
+  b.disabled=false; b.textContent='GUARDAR DATOS'; };
+function irSeccion(s){ document.querySelector('.secTabs button[data-s="'+s+'"]').click(); window.scrollTo(0,0); }
+$('obMedir').onclick=()=>{ irSeccion('secMed'); if(!obrasLista.includes(obActual)) obrasLista.push(obActual); pintarObras(obActual); };
+$('obParte').onclick=async()=>{ irSeccion('secPar'); setTimeout(()=>{ pintarObrasPartes(obActual); pintarHistorial(); },50); };
+$('obOferta').onclick=()=>{ irSeccion('secOf'); $('oObra').value=obActual; const d=obrasData[obActual]||{}; if(d.cliente) $('oCliente').value=d.cliente; };
+// cargar datos de obras al iniciar (para rellenar encargados)
+setTimeout(()=>{ token().then(()=>cargarObrasData()).catch(()=>{}); },1500);
 </script>
 </body>
 </html>
